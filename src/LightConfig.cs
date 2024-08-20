@@ -108,7 +108,7 @@ namespace AmbientLights
         private float flickStart = 0f;
         private float flickTarget = 0f;
         private float flickInc = 0f;
-        
+
         public void Load()
         {
             scene = AmbientLights.currentScene;
@@ -127,38 +127,40 @@ namespace AmbientLights
         private void LoadSceneConfig()
         {
             string sceneFile = "scene_" + scene + ".json";
-
-            if (File.Exists(Path.Combine(AmbientLights.MODS_FOLDER_PATH, sceneFile)))
+            string path = Path.Combine(AmbientLights.MODS_FOLDER_PATH, sceneFile);
+            if (File.Exists(path))
             {
                 data = JSON.Load(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, sceneFile))).Make<SceneConfig>();
             }
             else
             {
                 //Debug.Log("[ambient-lights] No lighting data for scene " + scene + " found. Using game default.");
-                ALUtils.Log("No lighting data for scene " + scene + " found. Using game default.", false, true);
+                ALUtils.Log("No lighting data for scene " + scene + " found in " + path + ". Using game default.", false, true);
             }
         }
 
         private void LoadGlobalConfig()
         {
-            if (File.Exists(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "weather_sets.json")))
+            string weatherPath = Path.Combine(AmbientLights.MODS_FOLDER_PATH, "weather_sets.json");
+            if (File.Exists(weatherPath))
             {
                 weathersConfig = JSON.Load(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "weather_sets.json"))).Make<Dictionary<string, WeatherMod>>();
             }
             else
             {
                 //Debug.Log("[ambient-lights] ERROR: No weather sets data found");
-                ALUtils.Log("ERROR: No weather sets data found.", false, true);
+                ALUtils.Log("ERROR: No weather sets data found at " + weatherPath + ".", false, true);
             }
 
-            if (File.Exists(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "global_sets.json")))
+            string globalPath = Path.Combine(AmbientLights.MODS_FOLDER_PATH, "global_sets.json");
+            if (File.Exists(globalPath))
             {
                 periodsConfig = JSON.Load(File.ReadAllText(Path.Combine(AmbientLights.MODS_FOLDER_PATH, "global_sets.json"))).Make<Dictionary<string, AmbPeriod>>();
             }
             else
             {
                 //Debug.Log("[ambient-lights] ERROR: No light sets data found");
-                ALUtils.Log("ERROR: No light sets data found.", false, true);
+                ALUtils.Log("ERROR: No light sets data found at " + globalPath + ".", false, true);
             }
         }
 
@@ -216,7 +218,7 @@ namespace AmbientLights
             LightSet ls = new LightSet();
 
             UniStormWeatherSystem uniStorm = GameManager.GetUniStorm();
-            TODStateData state = uniStorm.GetActiveTODState();
+            TODStateConfig state = uniStorm.GetActiveTODState();
 
             AmbPeriod prd = GetPeriodSet();
 
@@ -283,7 +285,7 @@ namespace AmbientLights
             ColorHSV wColor = bColor;
             wColor.s *= Mathf.Min(ApplyWeatherSaturationMod() - 0.2f, 0.4f);
             wColor.v *= (ls.intMod + 0.5f) + GetFlickeringMod();
-            
+
             ls.windowColor = wColor;
 
             ls.windowStrMod = ls.intMod;
@@ -373,7 +375,7 @@ namespace AmbientLights
 
             return str;
 
-            
+
         }
 
         internal float GetSunStrength()
@@ -475,7 +477,7 @@ namespace AmbientLights
                     case "blizzard":
                         if (flickTarget <= 0)
                         {
-                            
+
                             flickTarget = ((float)ALUtils.GetRandomNumber(0.5, 1)) * 0.04f;
                         }
                         else
@@ -551,7 +553,7 @@ namespace AmbientLights
 
             float sMod = wthMod.sMod, vMod = wthMod.vMod, rMod = wthMod.rMod, gMod = wthMod.gMod, bMod = wthMod.bMod;
 
-            
+
             if (TimeWeather.currentWeatherPct < 1f)
             {
                 WeatherMod wthPrev = GetWeatherMod(TimeWeather.previousWeather);
@@ -578,6 +580,6 @@ namespace AmbientLights
             return modColor;
         }
 
-        
+
     }
 }
